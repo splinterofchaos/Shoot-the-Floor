@@ -59,8 +59,8 @@ public:
 
     bool isSurface;
 
-    Actor( const vector_type& pos, const value_type maxSpeed=999 )
-        : s(pos), previousS(s), maxSpeed(maxSpeed), scale( 1 )
+    Actor( const vector_type& pos )
+        : s(pos), previousS(s), maxSpeed(0), scale( 1 )
     {
         init();
     }
@@ -87,7 +87,7 @@ public:
     }
 
     // Whether all Actors should have collision is undecided.
-    virtual void collide( Collision c ) = 0;
+    //virtual void collide( Collision c ) = 0;
 
     virtual ~Actor()
     {

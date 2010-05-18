@@ -1,14 +1,12 @@
 
 #include <iostream>
-using namespace std;
 
 #include "math/Vector.h"
 #include "ScopeGuard.h"
-#include "Collision.h"
-#include "Controller.h"
 #include "functional_plus.h"
 
 #include "Actor.h"
+#include "Playfield.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
@@ -27,7 +25,7 @@ using namespace std;
 
 GLenum init_gl( int w, int h )
 {
-    glClearColor( 1.0f, 0.0f, 1.0f, 1.0f );
+    glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
@@ -53,34 +51,37 @@ void update_screen()
     glClear( GL_COLOR_BUFFER_BIT );
 }
 
-int main()
+int main( int argc, char** argv )
 {
     // Portably suppresses unused variable compiler warnings.
     #define NOT_USED(var) ((void)(var))
 
-    typedef std::tr1::shared_ptr< Actor<float> > ActorPointer;
+    typedef std::tr1::shared_ptr< Actor<float,2> > ActorPointer;
     typedef std::vector< ActorPointer > ActorList;
-
-    typedef std::tr1::shared_ptr< Controller > ControllerPointer;
-    typedef std::vector< ControllerPointer > ControlerList;
 
     const int MAX_FRAME_TIME = 10;
 
     bool quit = false;
-    SDL_Event event;
 
     if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 )
         return 1;
-    make_sdl_gl_window( 1200, 800 );
+    make_sdl_gl_window( 700, 600 );
     ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
 
     ActorList actors;
-    ControlerList controlers;
+
+    //Vector<float> tmp; tmp.x(350); tmp.y(300); 
+    actors.push_back ( 
+        ActorPointer ( 
+            new Playfield( vector<float>(350, 300), 100 )
+        ) 
+    );
 
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
     {
-		while( SDL_PollEvent( &event ) )
+        static SDL_Event event;
+		while( SDL_PollEvent(&event) )
 		{
 			if( event.type == SDL_QUIT )
                 quit = true;
@@ -90,23 +91,16 @@ int main()
         if( keyState[SDLK_ESCAPE] )
             quit = true;
 
-        Keyboard::refresh();
-
-        for_each_ptr (
-            controlers.begin(), controlers.end(), 
-            std::mem_fun_ref( &Controller::update ) 
+        // TODO: Fixed time-step. 
+        for_each_ptr ( 
+            actors.begin(), actors.end(), 
+            std::bind2nd( std::mem_fun_ref( &Actor<float,2>::move ), frameTime )
         );
 
-        // TODO: Fixed time-step. 
-        //for_each_ptr ( 
-        //    actors.begin(), actors.end(), 
-        //    std::bind2nd( std::mem_fun_ref( &Actor<float,2>::move ), frameTime )
-        //);
-
-        //for_each_ptr ( 
-        //    actors.begin(), actors.end(), 
-        //    std::mem_fun_ref( &Actor<float,2>::draw ) 
-        //);
+        for_each_ptr ( 
+            actors.begin(), actors.end(), 
+            std::mem_fun_ref( &Actor<float,2>::draw ) 
+        );
 
         update_screen();
 

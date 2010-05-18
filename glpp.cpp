@@ -15,6 +15,26 @@ COLOR_FUNC4( float,  f );
 COLOR_FUNC4( double, d );
 #undef COLOR_FUNC4
 
+void enableClientState( GLenum cap )
+{
+    glEnableClientState( cap );
+}
+
+void drawArrays( GLenum mode, GLint first, GLsizei count )
+{
+    glDrawArrays( mode, first, count );
+}
+
+void disableClientState( GLenum cap )
+{
+    glDisableClientState( cap );
+}
+
+void loadIdentity()
+{
+    glLoadIdentity();
+}
+
 void translate( GLfloat  x, GLfloat  y, GLfloat  z ) { glTranslatef(x,y,z); }
 void translate( GLdouble x, GLdouble y, GLdouble z ) { glTranslated(x,y,z); }
 
