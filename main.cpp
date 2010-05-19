@@ -70,13 +70,6 @@ int main( int argc, char** argv )
 
     ActorList actors;
 
-    //Vector<float> tmp; tmp.x(350); tmp.y(300); 
-    actors.push_back ( 
-        ActorPointer ( 
-            new Playfield( vector<float>(350, 300), 100 )
-        ) 
-    );
-
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
     {
