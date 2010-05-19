@@ -6,7 +6,7 @@
 #include "functional_plus.h"
 
 #include "Actor.h"
-#include "Playfield.h"
+#include "Gunman.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
@@ -69,6 +69,12 @@ int main( int argc, char** argv )
     ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
 
     ActorList actors;
+
+    actors.push_back (
+        ActorPointer ( 
+            new Gunman( vector(350,300) ) 
+        )
+    );
 
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
