@@ -75,7 +75,7 @@ void draw_circle( float radius, unsigned int nVerteces )
     using namespace glpp;
     enableClientState( GL_VERTEX_ARRAY );
     vertexPointer( 2, 0, verteces.data() );
-    drawArrays( GL_POLYGON, 0, nVerteces );
+    drawArrays( GL_LINE_LOOP, 0, nVerteces );
     disableClientState( GL_VERTEX_ARRAY );
 }
 

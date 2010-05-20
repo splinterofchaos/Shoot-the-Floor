@@ -94,7 +94,7 @@ class Playfield : public Actor<float,2>
         glEnableClientState( GL_VERTEX_ARRAY );
         {
             // Draw each segment separately as a rectangle.
-            for( int i=0; i < N; i++ ) 
+            for( unsigned int i=0; i < N; i++ ) 
             {
 
                 Vector<GLfloat,3>& c = segments[i].actualColor;

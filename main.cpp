@@ -6,6 +6,7 @@
 #include "functional_plus.h"
 
 #include "Actor.h"
+#include "Playfield.h"
 #include "Gunman.h"
 
 #include <SDL/SDL.h>
@@ -76,6 +77,12 @@ int main( int argc, char** argv )
         )
     );
 
+    actors.push_back (
+        ActorPointer (
+            new Playfield<30>( vector(350,300), 200 )
+        )
+    );
+
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
     {
@@ -109,6 +116,8 @@ int main( int argc, char** argv )
         if( frameTime > MAX_FRAME_TIME )
             frameTime = MAX_FRAME_TIME;
     }
+
+    return 0;
 }
 
 
