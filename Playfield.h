@@ -31,52 +31,41 @@ class Segment
     }
 };
 
-template< size_t N >
+// Playfield is the arena on which gunmen will face. It is a segmented circle.
 class Playfield : public Actor<float,2>
 {
     typedef Actor<float,2> parrent;
 
-    Segment segments[N];
+    // Playfield is made of two parallel arrays, one handling each of its
+    // segments health, the other handling the actual locations of the
+    // vertices. The vertices of segment S_i are [V_2i,V_(2i+4)].
+    std::vector< Segment >         segments;
+    std::vector< Vector<float,2> > vertices;
 
-  public:
-    Playfield( const vector_type& pos, const value_type radius )
-        : parrent( pos )
+    void init_vertices( float nVertices )
     {
-        scale = radius;
-    }
+        static const float ROTATION = 2 * 3.145 / nVertices;
+        static const float TANGENTAL_FACTOR = std::tan( ROTATION );
+        static const float RADIAL_FACTOR    = std::cos( ROTATION );
 
-    void draw()
-    {
-        // TODO: This is a straight copy/paste of draw_loop. The vertices only
-        // need to be calculated once (like in the ctor). Move this code there
-        // and clean it up.
-        float rad1 = scale - scale / 30;
-        float rad2 = scale;
-        float nVertecies = N;
-        const float ROTATION = 2 * 3.145 / nVertecies;
-        const float TANGENTAL_FACTOR = std::tan( ROTATION );
-        const float RADIAL_FACTOR    = std::cos( ROTATION );
-
-        // Radial vectors.
-        Vector<float,2> rv1;
-        Vector<float,2> rv2;
-
-        rv1.x( rad1 ); rv1.y( 0.0f );
-        rv2.x( rad2 ); rv1.y( 0.0f );
-
-        std::vector< Vector<float,2> > verteces;
         // Two extra vertices are needed since the start vertices are repeated
         // at the end.
-        verteces.reserve( nVertecies * 2 + 2 );
+        vertices.reserve( nVertices * 2 + 2 );
+
+        // Radial vectors.
+        Vector<float,2> rv1 = vector( scale, 0.0f );
+        Vector<float,2> rv2 = vector( scale - scale/30, 0.0f );
 
         // Note that these points should be repeated at the end.
-        verteces.push_back( rv1 );
-        verteces.push_back( rv2 );
-        for( unsigned int i=0; i < nVertecies; i++ )
+        vertices.push_back( rv1 );
+        vertices.push_back( rv2 );
+        for( unsigned int i=0; i < nVertices; i++ )
         {
-            // Counter-clockwise tangents to the circle.
-            Vector<float,2> tv1 = vector( rv1.y(), -rv1.x() );
-            Vector<float,2> tv2 = vector( rv2.y(), -rv2.x() );
+            // Clockwise tangents to the circle. Since the Y-axis is reversed,
+            // starting at angle zero to the X-axis, counter-clockwise is a
+            // positive rotation.
+            Vector<float,2> tv1 = vector( -rv1.y(), rv1.x() );
+            Vector<float,2> tv2 = vector( -rv2.y(), rv2.x() );
 
             rv1 += tv1 * TANGENTAL_FACTOR;
             rv1 *= RADIAL_FACTOR;
@@ -84,9 +73,22 @@ class Playfield : public Actor<float,2>
             rv2 += tv2 * TANGENTAL_FACTOR;
             rv2 *= RADIAL_FACTOR;
 
-            verteces.push_back( rv1 );
-            verteces.push_back( rv2 );
+            vertices.push_back( rv1 );
+            vertices.push_back( rv2 );
         }
+    }
+
+  public:
+    Playfield( const vector_type& pos, value_type radius, unsigned int nVertices )
+        : parrent( pos ), segments( nVertices, Segment() )
+    {
+        scale = radius;
+
+        init_vertices( nVertices );
+    }
+
+    void draw()
+    {
 
         using namespace glpp;
         translate( s.x(), s.y(), 0 );
@@ -94,12 +96,12 @@ class Playfield : public Actor<float,2>
         glEnableClientState( GL_VERTEX_ARRAY );
         {
             // Draw each segment separately as a rectangle.
-            for( unsigned int i=0; i < N; i++ ) 
+            for( unsigned int i=0; i < segments.size(); i++ ) 
             {
 
                 Vector<GLfloat,3>& c = segments[i].actualColor;
                 glColor3f( c.x(), c.y(), c.z() );
-                glVertexPointer( 2, GL_FLOAT, 0, &verteces[2*i] );
+                glVertexPointer( 2, GL_FLOAT, 0, &vertices[2*i] );
 
                 /* Note drawing order:
                  * 2-3 <- drawing order used   3-2
@@ -118,10 +120,10 @@ class Playfield : public Actor<float,2>
 
     void segment_test( int quantum )
     {
-        static int i = 0;
+        static unsigned int i = 0;
         if( --segments[i].health <= 0 ) {
             segments[i].health = 0;
-            if( ++i == N )
+            if( ++i >= segments.size() )
                 i = 0;
         }
         segments[i].calculate_color();

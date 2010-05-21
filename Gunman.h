@@ -66,7 +66,7 @@ class Gunman : public Actor<float,2>
 
             const int CIRCLE_PIXELS = 10;
             glTranslatef( 0, -3*scale - CIRCLE_PIXELS, 0 );
-            draw_circle( CIRCLE_PIXELS, 20 );
+            draw_circle( CIRCLE_PIXELS, 11 );
         }
         glDisableClientState( GL_VERTEX_ARRAY );
 

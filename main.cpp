@@ -79,7 +79,7 @@ int main( int argc, char** argv )
 
     actors.push_back (
         ActorPointer (
-            new Playfield<30>( vector(350,300), 200 )
+            new Playfield( vector(350,300), 200, 30 )
         )
     );
 
