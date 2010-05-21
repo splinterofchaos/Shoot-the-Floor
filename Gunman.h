@@ -16,7 +16,6 @@ class Gunman : public Actor<float,2>
      */
     enum { SHOULDER, WAIST1, LEFT_FOOT, WAIST2, RIGHT_FOOT, N_POINTS };
     vector_type points[ N_POINTS ];
-    value_type ARM_LENGTH;
 
     vector_type arm_vector();
 
