@@ -4,6 +4,8 @@
 #include "glpp.h"
 #include "math\Vector.h"
 
+#pragma once
+
 class Segment
 {
     static const int MAX_HEALTH = 100;
@@ -132,5 +134,14 @@ class Playfield : public Actor<float,2>
     void move( int quantum )
     {
         segment_test( quantum );
+    }
+
+    void collide( const vector_type& ) 
+    {
+    }
+
+    value_type inner_radius() const
+    {
+        return scale - scale/30;
     }
 };

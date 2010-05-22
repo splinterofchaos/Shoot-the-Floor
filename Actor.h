@@ -87,7 +87,7 @@ public:
     }
 
     // Whether all Actors should have collision is undecided.
-    //virtual void collide( Collision c ) = 0;
+    virtual void collide( const vector_type& intersection ) = 0;
 
     virtual ~Actor()
     {

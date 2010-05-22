@@ -8,6 +8,7 @@
 #include "Actor.h"
 #include "Playfield.h"
 #include "Gunman.h"
+#include "Collision.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
@@ -71,15 +72,12 @@ int main( int argc, char** argv )
 
     ActorList actors;
 
-    actors.push_back (
-        ActorPointer ( 
-            new Gunman( vector(350,300), true ) 
-        )
-    );
+    Playfield* playfield = new Playfield( vector(350,300), 200, 30 );
+    actors.push_back( ActorPointer(playfield) );
 
     actors.push_back (
-        ActorPointer (
-            new Playfield( vector(350,300), 200, 30 )
+        ActorPointer ( 
+            new Gunman( vector(380,300), *playfield, true ) 
         )
     );
 
@@ -102,6 +100,15 @@ int main( int argc, char** argv )
             actors.begin(), actors.end(), 
             std::bind2nd( std::mem_fun_ref( &Actor<float,2>::move ), frameTime )
         );
+  
+        for( ActorList::iterator it=actors.begin(); it != actors.end(); it++ )
+        {
+            if( it->get() != playfield ) {
+                Collision c = collision( *playfield, **it );
+                if( c )
+                    (*it)->collide( c.intersection );
+            }
+        }
 
         for_each_ptr ( 
             actors.begin(), actors.end(), 
