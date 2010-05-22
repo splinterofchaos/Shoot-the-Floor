@@ -21,15 +21,8 @@ class Gunman : public Actor<float,2>
     vector_type points[ N_POINTS ];
 
     vector_type arm_vector();
-
-    vector_type normal_to( const vector_type& V )
-    {
-        vector_type diff = playfield.s - s;
-        value_type nAngle = atan2( diff.y(), diff.x() );
-        vector_type n = vector( std::cos(nAngle), std::sin(nAngle) );
-        n = -( V * normalize(n) ) * normalize(n);
-        return n;
-    }
+    value_type normal_angle();
+    vector_type normal_to( const vector_type& V );
 
   public:
     Playfield& playfield;
@@ -42,11 +35,5 @@ class Gunman : public Actor<float,2>
     void move( int quantum );
     void draw();
 
-    void collide( const vector_type& intersection )
-    {
-        // TODO: Should s change here?
-
-        v += normal_to( v );
-        isGrounded = true;
-    }
+    void collide( const vector_type& intersection );
 };

@@ -83,7 +83,7 @@ public:
         }
 
         v += a * quantum;
-        s += v * quantum;
+        s += 0.5 * a * quantum * quantum + v * quantum;
     }
 
     // Whether all Actors should have collision is undecided.

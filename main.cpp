@@ -77,7 +77,7 @@ int main( int argc, char** argv )
 
     actors.push_back (
         ActorPointer ( 
-            new Gunman( vector(380,300), *playfield, true ) 
+            new Gunman( vector(480,300), *playfield, true ) 
         )
     );
 
