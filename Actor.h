@@ -34,6 +34,8 @@ class Actor
     {
         std::fill( v.begin(), v.end(), 0 );
         std::fill( a.begin(), a.end(), 0 );
+
+        killMe = false;
     }
    
 protected:
@@ -61,7 +63,7 @@ public:
 
     value_type scale; // At what magnification to draw the Actor.
 
-    bool isSurface;
+    bool killMe; // True if this should die.
 
     Actor( const vector_type& pos )
         : s(pos), previousS(s), maxSpeed(0), scale( 1 )
