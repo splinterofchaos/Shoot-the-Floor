@@ -10,26 +10,17 @@
 
 #pragma once
 
-struct Collision; // Prototype; defined elsewhere.
+template< typename T=float, size_t N_DIMENTIONS=3 >
+class Actor;
 
-// A subclass for any object that can be graphed. It provides some
-// genericy in typedefs, but not functionality or data.
-template< typename T=float, unsigned int N_DIMENTIONS=3 >
-struct Graphable
-{
-    static const int DIMENTIONS = N_DIMENTIONS;
-
-    typedef Vector<T,N_DIMENTIONS> vector_type;
-    typedef T                      value_type;
-};
+typedef std::tr1::shared_ptr< Actor<float,2> > ActorPointer;
+typedef std::vector< ActorPointer > ActorList;
 
 // Any object that can be drawn, moved, and graphed can use Actor as its base.
 // It does not determine how its derivative is drawn, moved, or graphed.
-template< typename T=float, size_t N_DIMENTIONS=3 >
-class Actor : public Graphable<T,N_DIMENTIONS>
+template< typename T, size_t N_DIMENTIONS >
+class Actor 
 {
-    typedef Graphable< T, N_DIMENTIONS > parrent;
-
     void init()
     {
         std::fill( v.begin(), v.end(), 0 );
@@ -42,8 +33,12 @@ protected:
     }
 
 public:
-    typedef typename parrent::vector_type vector_type;
-    typedef typename parrent::value_type  value_type;
+    static void (*inserter)( ActorPointer ); // A function for inserting an Actor.
+
+    static const int DIMENTIONS = N_DIMENTIONS;
+
+    typedef Vector<T,N_DIMENTIONS> vector_type;
+    typedef T                      value_type;
 
     // Single-letter vars used in order to be close to the mathematical 
     // equations.
@@ -93,4 +88,7 @@ public:
     {
     }
 };
+
+template< typename T, size_t N >
+void (*Actor<T,N>::inserter)( ActorPointer ) = 0;
 

@@ -13,6 +13,9 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
+#include <algorithm> // For for_each().
+#include <functional> // For mem_fun_ptr.
+
 // include shared ptr.
 #if defined( __GNUC__ )
     // tr1/memory is required to include tr1/shared_ptr.h... Dunno why.
@@ -21,9 +24,6 @@
 #elif defined( __MSVC__ )
     #error "Insert whatever you have to to use shared_ptr here!"
 #endif
-
-#include <algorithm> // For for_each().
-#include <functional> // For mem_fun_ptr.
 
 GLenum init_gl( int w, int h )
 {
@@ -53,13 +53,17 @@ void update_screen()
     glClear( GL_COLOR_BUFFER_BIT );
 }
 
+ActorList actors;
+
+void insert_actor( ActorPointer p )
+{
+    actors.push_back( p );
+}
+
 int main( int argc, char** argv )
 {
     // Portably suppresses unused variable compiler warnings.
     #define NOT_USED(var) ((void)(var))
-
-    typedef std::tr1::shared_ptr< Actor<float,2> > ActorPointer;
-    typedef std::vector< ActorPointer > ActorList;
 
     const int MAX_FRAME_TIME = 10;
 
@@ -70,8 +74,6 @@ int main( int argc, char** argv )
     make_sdl_gl_window( 700, 600 );
     ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
 
-    ActorList actors;
-
     Playfield* playfield = new Playfield( vector(350,300), 200, 30 );
     actors.push_back( ActorPointer(playfield) );
 
@@ -80,6 +82,8 @@ int main( int argc, char** argv )
             new Gunman( vector(480,300), *playfield, true ) 
         )
     );
+
+    Actor<float,2>::inserter = &insert_actor;
 
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
