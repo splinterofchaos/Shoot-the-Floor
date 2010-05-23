@@ -38,13 +38,6 @@ class Gunman : public Actor<float,2>, public PointCollisionData
     void collide( const vector_type& intersection );
 
     // For PointCollisionData
-    CollisionData& collision_data() 
-    {
-        return *this;
-    }
-
-    Vector<float,2> pos() const
-    {
-        return s;
-    }
+    CollisionData& collision_data();
+    Vector<float,2> pos();
 };
