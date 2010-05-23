@@ -96,12 +96,15 @@ int main( int argc, char** argv )
             std::bind2nd( std::mem_fun_ref( &Actor<float,2>::move ), frameTime )
         );
   
-        for( ActorList::iterator it=actors.begin(); it != actors.end(); it++ )
+        for( ActorList::iterator it1=actors.begin(); it1 != actors.end(); it1++ )
         {
-            if( it->get() != playfield ) {
-                Collision c = collision( *playfield, **it );
-                if( c )
-                    (*it)->collide( c.intersection );
+            for( ActorList::iterator it2=it1+1; it2 != actors.end(); it2++ ) 
+            {
+                Collision c = collision( (*it1)->collision_data(), (*it2)->collision_data() );
+                if( c ) {
+                    (*it1)->collide( c.intersection );
+                    (*it2)->collide( c.intersection );
+                }
             }
         }
 
@@ -111,6 +114,8 @@ int main( int argc, char** argv )
         );
 
         update_screen();
+
+
 
         frameStart = frameEnd;
         frameEnd = SDL_GetTicks();

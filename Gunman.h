@@ -4,7 +4,7 @@
 
 #pragma once
 
-class Gunman : public Actor<float,2>
+class Gunman : public Actor<float,2>, public PointCollisionData
 {
     typedef Actor<float,2> parent;
 
@@ -36,4 +36,15 @@ class Gunman : public Actor<float,2>
     void draw();
 
     void collide( const vector_type& intersection );
+
+    // For PointCollisionData
+    CollisionData& collision_data() 
+    {
+        return *this;
+    }
+
+    Vector<float,2> pos() const
+    {
+        return s;
+    }
 };

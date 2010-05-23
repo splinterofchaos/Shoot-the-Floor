@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "math/Vector.h"
 #include "glpp.h"
 #include "draw_shape.h"
@@ -17,10 +19,10 @@
     #error "Insert whatever you have to to use shared_ptr here!"
 #endif
 
-#pragma once
-
 template< typename T=float, size_t N_DIMENTIONS=3 >
 class Actor;
+
+class CollisionData;
 
 typedef std::tr1::shared_ptr< Actor<float,2> > ActorPointer;
 typedef std::vector< ActorPointer > ActorList;
@@ -98,6 +100,8 @@ public:
     virtual ~Actor()
     {
     }
+
+    virtual CollisionData& collision_data() = 0;
 };
 
 template< typename T, size_t N >

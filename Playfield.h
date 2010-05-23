@@ -1,5 +1,6 @@
 
 #include "Actor.h"
+#include "Collision.h"
 #include "draw_shape.h"
 #include "glpp.h"
 #include "math\Vector.h"
@@ -34,7 +35,7 @@ class Segment
 };
 
 // Playfield is the arena on which gunmen will face. It is a segmented circle.
-class Playfield : public Actor<float,2>
+class Playfield : public Actor<float,2>, public LoopCollisionData
 {
     typedef Actor<float,2> parrent;
 
@@ -140,8 +141,24 @@ class Playfield : public Actor<float,2>
     {
     }
 
-    value_type inner_radius() const
+    // For LoopCollisionData
+    CollisionData& collision_data() 
+    {
+        return *this;
+    }
+
+    Vector<float,2> pos() const
+    {
+        return s;
+    }
+
+    value_type inner_radius()
     {
         return scale - scale/30;
+    }
+
+    value_type outer_radius()
+    {
+        return scale;
     }
 };
