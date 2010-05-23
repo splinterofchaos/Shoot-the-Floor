@@ -51,6 +51,11 @@ void insert_actor( ActorPointer p )
     actors.push_back( p );
 }
 
+bool kill_me( ActorPointer actor )
+{
+    return actor->killMe;
+}
+
 int main( int argc, char** argv )
 {
     // Portably suppresses unused variable compiler warnings.
@@ -113,9 +118,12 @@ int main( int argc, char** argv )
             std::mem_fun_ref( &Actor<float,2>::draw ) 
         );
 
+        actors.erase ( 
+            std::remove_if( actors.begin(), actors.end(), kill_me ),
+            actors.end() 
+        );
+
         update_screen();
-
-
 
         frameStart = frameEnd;
         frameEnd = SDL_GetTicks();
