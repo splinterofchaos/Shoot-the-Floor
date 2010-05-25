@@ -36,6 +36,9 @@ Gunman::vector_type Gunman::normal_to( const vector_type& V )
 
 void Gunman::move( int quantum )
 {
+    // The sum of all forces acting on this.
+    vector_type forceSum = vector( 0, 0 ); 
+
     // Arm movement:
     if( controlledByPlayer ) {
         Uint8 mouseState;
@@ -56,16 +59,23 @@ void Gunman::move( int quantum )
             );
             parent::inserter( ActorPointer(p) );
         }
+
+        // Move body.
+        static const value_type MOVE_FORCE = 0.0001;
+        Uint8* keys = SDL_GetKeyState( 0 );
+        if( keys[SDLK_a] )
+            forceSum += vector<value_type>( -MOVE_FORCE, 0 );
+        if( keys[SDLK_d] )
+            forceSum += vector<value_type>( MOVE_FORCE, 0 );
     } else {
         pointingDirection += 0.001;
     }
 
     // Body movement:
-    vector_type forceSum; // The sum of all forces acting on this.
 
     // Gravity:
-    static const vector_type GRAVITY = vector<value_type>( 0, 0.0005 );
-    forceSum = GRAVITY;
+    static const vector_type GRAVITY = vector<value_type>( 0, 0.00005 );
+    forceSum += GRAVITY;
 
     // For now, ignore the difference between force and acceleration; 
     // there is no mass.
