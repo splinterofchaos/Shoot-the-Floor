@@ -69,6 +69,7 @@ int main( int argc, char** argv )
         return 1;
     make_sdl_gl_window( 700, 600 );
     ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
+    ScopeGuard flushGl = scope_guard( glFlush  ); NOT_USED( flushGl );
 
     Playfield* playfield = new Playfield( vector(350,300), 200, 30 );
     actors.push_back( ActorPointer(playfield) );

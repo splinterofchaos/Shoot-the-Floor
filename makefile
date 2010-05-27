@@ -1,27 +1,31 @@
 
-CXX = g++
-OPS = -Wall
-O = 
-OUT = run
+CC = g++
+CFLAGS  = -Wall
+OUT  = run
 LIBS = -lGL -lSDL
 
-${OUT} : makefile main.cpp glpp.o Terrain.o Collision.o Controller.h draw_shape.o Tank.o
-	${CXX} -o ${OUT} ${OPS} ${LIBS} main.cpp glpp.o draw_shape.o Terrain.o Collision.o Tank.o
+compile=${CC} ${CFLAGS}
+link=${compile} -o ${OUT} ${LIBS}
 
-Tank.o : Tank.h Tank.cpp Actor.h Rectangle.h Collision.h Terrain.h
-	${CXX} -c Tank.cpp
+${OUT} : glpp.o draw_shape.o Playfield.o Collision.o Gunman.o makefile
+	${link} ${LIBS} Gunman.o Bullet.h main.cpp Collision.o Playfield.o glpp.o draw_shape.o 
 
-Terrain.o : Terrain.h Terrain.cpp Actor.h Rectangle.h Collision.h
-	${CXX} -c Terrain.cpp
+Gunman.o : Gunman.cpp Gunman.h makefile
+	${compile} -c Gunman.cpp
 
-Collision.o : Collision.h Collision.cpp
-	${CXX} -c Collision.cpp
+Collision.o : Collision.cpp Collision.h makefile
+	${compile} -c Collision.cpp
 
-draw_shape.o : draw_shape.h draw_shape.cpp glpp.o
-	${CXX} -c draw_shape.cpp
+Playfield.o : Playfield.h Playfield.cpp makefile
+	${compile} -c Playfield.cpp
 
-glpp.o : glpp.cpp glpp.h
-	${CXX} -c glpp.cpp
+draw_shape.o : draw_shape.h draw_shape.cpp makefile
+	${compile} -c draw_shape.cpp 
+
+glpp.o : glpp.cpp glpp.h makefile
+	${compile} -c glpp.cpp
 
 clean : 
 	rm *.o
+
+.PHONY : clean

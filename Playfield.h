@@ -3,7 +3,7 @@
 #include "Collision.h"
 #include "draw_shape.h"
 #include "glpp.h"
-#include "math\Vector.h"
+#include "math/Vector.h"
 
 #pragma once
 
