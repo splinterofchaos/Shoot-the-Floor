@@ -17,9 +17,10 @@
     #error "Insert whatever you have to to use shared_ptr here!"
 #endif
 
+#include "Collision.h"
+
 #pragma once
 
-struct CollisionData; // Prototype; defined elsewhere.
 
 // Any object that can be drawn, moved, and graphed can use Actor as its base.
 // It does not determine how its derivative is drawn, moved, or graphed.
@@ -33,16 +34,14 @@ class Actor
         actors.push_back( ActorPointer(this) );
     }
 
-
-    typedef std::tr1::shared_ptr< Actor > ActorPointer;
-    typedef std::vector< ActorPointer > ActorList;
-
 protected:
     Actor()
     {
     }
 
 public:
+    typedef std::tr1::shared_ptr< Actor > ActorPointer;
+    typedef std::vector< ActorPointer > ActorList;
     static ActorList actors;
 
     typedef float value_type;
@@ -79,6 +78,9 @@ public:
         v += a * dt;
         s += v*dt + 0.5*a*dt*dt;
     }
+
+    virtual CollisionData& collision_data() = 0;
+    virtual void collide() = 0;
 
     virtual ~Actor()
     {

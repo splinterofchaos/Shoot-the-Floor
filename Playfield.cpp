@@ -86,11 +86,11 @@ void Playfield::segment_test( int quantum )
 
 void Playfield::move( int quantum ) { segment_test( quantum ); }
 
-//void Playfield::collide( const Playfield::vector_type& ) { }
-//
-//CollisionData& Playfield::collision_data() { return *this; }
-//
-//Vector<float,2> Playfield::pos() { return s; }
+void Playfield::collide() { }
+
+CollisionData& Playfield::collision_data() { return *this; }
+
+Vector<float,2>& Playfield::pos() { return s; }
 
 Playfield::value_type Playfield::inner_radius() { return scale - scale/30; }
 Playfield::value_type Playfield::outer_radius() { return scale; }

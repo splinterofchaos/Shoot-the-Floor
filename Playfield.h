@@ -45,7 +45,7 @@ class Segment
     }
 };
 
-class Playfield : public Actor
+class Playfield : public Actor, LoopCollisionData
 {
     typedef Actor parrent;
 
@@ -62,9 +62,9 @@ class Playfield : public Actor
 
     void segment_test( int quantum );
 
-    //void collide( const Playfield::vector_type& ) { }
-    //CollisionData& collision_data() { return *this; }
-    //Vector<float,2> pos() { return s; }
-    value_type inner_radius();
-    value_type outer_radius();
+    void collide();
+    CollisionData& collision_data();
+    Vector<float,2>& pos();
+    float inner_radius();
+    float outer_radius();
 };

@@ -8,6 +8,9 @@
 
 #include "Actor.h"
 #include "Playfield.h"
+#include "Gunman.h"
+
+#include "Collision.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
@@ -58,7 +61,8 @@ int main( int argc, char** argv )
     //ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
     //ScopeGuard flushGl = scope_guard( glFlush ); NOT_USED( flushGl );
 
-    new Playfield( vector<float>(350, 300), 200, 40 );
+    Playfield& playfield = *(new Playfield( vector<float>(350, 300), 200, 40 ));
+    new Gunman( vector(500, 300), playfield, true );
 
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
@@ -81,6 +85,22 @@ int main( int argc, char** argv )
             Actor::actors.begin(), Actor::actors.end(), 
             std::bind2nd( std::mem_fun_ref(&Actor::move), frameTime )
         );
+
+        for( Actor::ActorList::iterator it1 = Actor::actors.begin();
+             it1 != Actor::actors.end();
+             it1++ )
+        {
+            for( Actor::ActorList::iterator it2 = it1+1;
+                 it2 != Actor::actors.end();
+                 it2++ )
+            {
+                if( collision((**it1).collision_data(), (**it2).collision_data()) )
+                {
+                    (**it1).collide();
+                    (**it2).collide();
+                }
+            }
+        }
 
         for_each ( 
             Actor::actors.begin(), Actor::actors.end(), 
