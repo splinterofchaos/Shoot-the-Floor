@@ -76,7 +76,7 @@ public:
     virtual void move( int dt )
     {
         v += a * dt;
-        s += v*dt + 0.5*a*dt*dt;
+        s += v*dt + a*dt*dt*0.5;
     }
 
     virtual CollisionData& collision_data() = 0;

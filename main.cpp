@@ -58,8 +58,8 @@ int main( int argc, char** argv )
     if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 )
         return 1;
     make_sdl_gl_window( 700, 600 );
-    //ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
-    //ScopeGuard flushGl = scope_guard( glFlush ); NOT_USED( flushGl );
+    ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
+    ScopeGuard flushGl = scope_guard( glFlush ); NOT_USED( flushGl );
 
     Playfield& playfield = *(new Playfield( vector<float>(350, 300), 200, 40 ));
     new Gunman( vector(500, 300), playfield, true );
@@ -115,10 +115,6 @@ int main( int argc, char** argv )
         if( frameTime > MAX_FRAME_TIME )
             frameTime = MAX_FRAME_TIME;
     }
-
-    SDL_Quit();
-    // Without this, on some systems, the process will not close.
-    glFlush();
 
     return 0;
 }

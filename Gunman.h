@@ -24,6 +24,7 @@ class Gunman : public Actor, PointCollisionData
     static const unsigned int HEAD_RADIUS = 10;
     static vector_type headPoints[ N_HEAD_POINTS ];
 
+    vector_type shoulder_point();
     vector_type arm_vector();
     value_type normal_angle();
     vector_type normal_to( const vector_type& V );

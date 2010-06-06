@@ -35,7 +35,7 @@ Gunman::Gunman( const Gunman::vector_type& pos, Playfield& p, bool controlledByP
     const float RADIAL_FACTOR    = std::cos( ROTATION );
 
     // Radial vectors.
-    Vector<float,2> rv = vector( HEAD_RADIUS, 0.0f );
+    Vector<float,2> rv = vector<value_type>( HEAD_RADIUS, 0 );
 
     // Note that this point should be repeated at the end.
     headPoints[0] = rv;
@@ -64,6 +64,16 @@ Gunman::vector_type Gunman::normal_to( const vector_type& V )
     return n;
 }
 
+Gunman::vector_type Gunman::shoulder_point()
+{
+    // Since the shoulder is only offset in the Y direction, just consider that magnitude.
+    const value_type& magnitude = points[ SHOULDER ].y();
+
+    value_type angle = normal_angle();
+
+    return vector( -std::cos(angle), -std::sin(angle) ) * magnitude;
+}
+
 void Gunman::move( int quantum )
 {
     // Arm movement:
@@ -73,18 +83,17 @@ void Gunman::move( int quantum )
         // Make a vector pointing from shoulder to cursor.
         int x, y;
         mouseState = SDL_GetMouseState( &x, &y );
-        vector_type v = vector(x,y) - ( s + points[SHOULDER] );
+        vector_type v = vector(x,y) - ( s + shoulder_point() );
 
         pointingDirection = std::atan2( v.y(), v.x() );
 
         // Shoot a bullet.
         if( mouseState & SDL_BUTTON(1) ) 
         {
-            //Bullet* p = new Bullet ( 
-            //    s + points[SHOULDER] + arm_vector(),
-            //    pointingDirection 
-            //);
-            //parent::inserter( ActorPointer(p) );
+            // new Bullet ( 
+            //     s + points[SHOULDER] + arm_vector(),
+            //     pointingDirection 
+            // );
         }
     } else {
         pointingDirection += 0.001;
@@ -94,7 +103,7 @@ void Gunman::move( int quantum )
     vector_type forceSum; // The sum of all forces acting on this.
 
     // Gravity:
-    static const vector_type GRAVITY = vector<value_type>( 0, 0.0005 );
+    static const vector_type GRAVITY = vector<value_type>( 0, 0.00005 );
     forceSum = GRAVITY;
 
     // For now, ignore the difference between force and acceleration; 
@@ -106,7 +115,7 @@ void Gunman::move( int quantum )
     parent::move( quantum );
 
     static int x = 100;
-    if( isGrounded && x-- == 0 ) {
+    if( isGrounded && x-- < 0 ) {
         float angle = normal_angle() + 3.14;
         s = vector( std::cos(angle), std::sin(angle) ) * playfield.inner_radius() + playfield.s;
 
@@ -130,12 +139,8 @@ void Gunman::draw()
     // TODO: Really, the hand arm points could be integrated into points. The
     // hand point would still be updated in this block before continuing.
     vector_type armPoints[2] = {
-        points[ SHOULDER ], points[ SHOULDER ] + arm_vector()
+        s + shoulder_point(), s + shoulder_point() + arm_vector()
     };
-
-    float angle = normal_angle();
-    glTranslatef( s.x(), s.y(), 0 );
-    glRotatef( angle * (180/3.145) + 90, 0, 0, 1 );
 
     // TODO: Rotation.
     // Rotation will involve not only the graphical rotation of the gunman, but
@@ -148,11 +153,16 @@ void Gunman::draw()
     {
         glColor3f( 0, 0, 0 );
 
-        glVertexPointer( 2, GL_FLOAT, 0, points );
-        glDrawArrays( GL_LINE_STRIP, 0, N_POINTS );
-
         glVertexPointer( 2, GL_FLOAT, 0, armPoints );
         glDrawArrays( GL_LINE_STRIP, 0, 2 );
+
+
+        float angle = normal_angle();
+        glTranslatef( s.x(), s.y(), 0 );
+        glRotatef( angle * (180/3.145) + 90, 0, 0, 1 );
+
+        glVertexPointer( 2, GL_FLOAT, 0, points );
+        glDrawArrays( GL_LINE_STRIP, 0, N_POINTS );
 
         glTranslatef( 0, -3*scale - HEAD_RADIUS, 0 );
         glVertexPointer( 2, GL_FLOAT, 0, headPoints );
