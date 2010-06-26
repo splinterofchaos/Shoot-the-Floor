@@ -409,7 +409,7 @@ VEC magnitude( const VEC& v, T newMag )
 }
 
 UNARY_OP_TEMPLATE
-VEC normalize( const VEC& v )
+VEC unit( const VEC& v )
 {
     T x = magnitudeSqr( v );
 

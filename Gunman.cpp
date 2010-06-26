@@ -60,7 +60,7 @@ Gunman::vector_type Gunman::normal_to( const vector_type& V )
 {
     value_type nAngle = normal_angle();
     vector_type n = vector( std::cos(nAngle), std::sin(nAngle) );
-    n = -( V * normalize(n) ) * normalize(n);
+    n = -( V * unit(n) ) * unit(n);
     return n;
 }
 
@@ -88,12 +88,15 @@ void Gunman::move( int quantum )
         pointingDirection = std::atan2( v.y(), v.x() );
 
         // Shoot a bullet.
-        if( mouseState & SDL_BUTTON(1) ) 
+        Uint32 time = SDL_GetTicks();
+        if( mouseState & SDL_BUTTON(1) && timeTillNextShot <= time ) 
         {
-            // new Bullet ( 
-            //     s + points[SHOULDER] + arm_vector(),
-            //     pointingDirection 
-            // );
+            timeTillNextShot = time + SHOOT_DELAY;
+
+            new Bullet ( 
+                s + shoulder_point() + arm_vector(),
+                v
+            );
         }
     } else {
         pointingDirection += 0.001;
@@ -103,7 +106,7 @@ void Gunman::move( int quantum )
     vector_type forceSum; // The sum of all forces acting on this.
 
     // Gravity:
-    static const vector_type GRAVITY = vector<value_type>( 0, 0.00005 );
+    static const vector_type GRAVITY = vector<value_type>( 0, 0.0005 );
     forceSum = GRAVITY;
 
     // For now, ignore the difference between force and acceleration; 
@@ -139,7 +142,7 @@ void Gunman::draw()
     // TODO: Really, the hand arm points could be integrated into points. The
     // hand point would still be updated in this block before continuing.
     vector_type armPoints[2] = {
-        s + shoulder_point(), s + shoulder_point() + arm_vector()
+        shoulder_point(), shoulder_point() + arm_vector()
     };
 
     // TODO: Rotation.
@@ -152,13 +155,14 @@ void Gunman::draw()
     glEnableClientState( GL_VERTEX_ARRAY );
     {
         glColor3f( 0, 0, 0 );
+        glTranslatef( s.x(), s.y(), 0 );
 
+        // The arm is calculated without rotation, so draw it,
         glVertexPointer( 2, GL_FLOAT, 0, armPoints );
         glDrawArrays( GL_LINE_STRIP, 0, 2 );
 
-
+        // and rotate AFTER.
         float angle = normal_angle();
-        glTranslatef( s.x(), s.y(), 0 );
         glRotatef( angle * (180/3.145) + 90, 0, 0, 1 );
 
         glVertexPointer( 2, GL_FLOAT, 0, points );

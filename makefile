@@ -20,17 +20,25 @@ CFLAGS  += -Wall
 compile = ${CC} ${CFLAGS} -c
 link    = ${CC} ${CFLAGS} -o ${OUT}
 
-${OUT} : .draw_shape.o .Playfield.o .Actor.o .Gunman.o .Collision.o main.cpp makefile
-	# LDFLAGS must be at end for Windows compiling.
-	${link} main.cpp -std=c++0x .Playfield.o .Actor.o .Gunman.o .Collision.o ${LDFLAGS}
+${OUT} : .draw_shape.o .glpp.o .Playfield.o .Actor.o .Gunman.o .Bullet.o .Collision.o .draw_shape.o main.cpp makefile
+	${link} main.cpp -std=c++0x .Playfield.o .Actor.o .Gunman.o .Bullet.o .Collision.o .draw_shape.o .glpp.o ${LDFLAGS}
+
+.glpp.o : glpp.* makefile
+	${compile} glpp.cpp -o .glpp.o
+
+.draw_shape.o : draw_shape.* makefile
+	${compile} draw_shape.cpp  -o .draw_shape.o
 
 .Collision.o : Collision.cpp Collision.h makefile
 	${compile} Collision.cpp -o .Collision.o
 
-.Gunman.o : Gunman.* Actor.h Collision.h makefile
+.Bullet.o : Bullet.* Actor.h makefile
+	${compile} Bullet.cpp -o .Bullet.o
+
+.Gunman.o : Gunman.* Actor.h makefile
 	${compile} Gunman.cpp -o .Gunman.o
 
-.Actor.o : Actor.cpp Actor.h makefile
+.Actor.o : Actor.cpp Actor.h Collision.h makefile
 	${compile} Actor.cpp -o .Actor.o
 
 .Playfield.o : Playfield.h Playfield.cpp Actor.h Collision.h makefile

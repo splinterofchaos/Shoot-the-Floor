@@ -24,6 +24,10 @@ class Gunman : public Actor, PointCollisionData
     static const unsigned int HEAD_RADIUS = 10;
     static vector_type headPoints[ N_HEAD_POINTS ];
 
+    // How long (in miliseconds) to wait between shots.
+    static const int SHOOT_DELAY = 10; 
+    int timeTillNextShot;
+
     vector_type shoulder_point();
     vector_type arm_vector();
     value_type normal_angle();

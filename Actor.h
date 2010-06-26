@@ -28,6 +28,8 @@ class Actor
 {
     void init()
     {
+        destroyMeFlag = false;
+
         std::fill( v.begin(), v.end(), 0 );
         std::fill( a.begin(), a.end(), 0 );
 
@@ -59,7 +61,7 @@ public:
 
     value_type scale; // At what magnification to draw the Actor.
 
-    bool isSurface;
+    bool destroyMeFlag;
 
     Actor( const vector_type& pos )
         : s(pos), previousS(s), maxSpeed(0), scale( 1 )
@@ -87,3 +89,4 @@ public:
     }
 };
 
+bool destroy_me( const Actor::ActorPointer& actor );

@@ -58,11 +58,16 @@ int main( int argc, char** argv )
     if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 )
         return 1;
     make_sdl_gl_window( 700, 600 );
+
+#ifdef POSIX
+    // This works best on Linux, but seems to fail on Windows. TODO: WHY!?
     ScopeGuard quitSdl = scope_guard( SDL_Quit ); NOT_USED( quitSdl ); 
     ScopeGuard flushGl = scope_guard( glFlush ); NOT_USED( flushGl );
+#endif
 
     Playfield& playfield = *(new Playfield( vector<float>(350, 300), 200, 40 ));
     new Gunman( vector(500, 300), playfield, true );
+    new Gunman( vector(500, 200), playfield, true );
 
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
@@ -107,6 +112,13 @@ int main( int argc, char** argv )
             std::mem_fn( &Actor::draw ) 
         );
 
+        Actor::actors.erase ( 
+            remove_if (
+                Actor::actors.begin(), Actor::actors.end(), destroy_me
+            ), 
+            Actor::actors.end() 
+        );
+
         update_screen();
 
         frameStart = frameEnd;
@@ -115,6 +127,10 @@ int main( int argc, char** argv )
         if( frameTime > MAX_FRAME_TIME )
             frameTime = MAX_FRAME_TIME;
     }
+
+#ifdef _WIN32
+    SDL_Quit();
+#endif
 
     return 0;
 }
