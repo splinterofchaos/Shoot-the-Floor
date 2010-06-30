@@ -177,7 +177,7 @@ void Gunman::draw()
     glLoadIdentity();
 }
 
-void Gunman::collide()
+void Gunman::collide( Actor& collider )
 {
     // TODO: Should s change here?
 

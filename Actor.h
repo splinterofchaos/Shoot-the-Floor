@@ -82,7 +82,7 @@ public:
     }
 
     virtual CollisionData& collision_data() = 0;
-    virtual void collide() = 0;
+    virtual void collide( Actor& collider ) = 0;
 
     virtual ~Actor()
     {

@@ -62,7 +62,7 @@ class Playfield : public Actor, LoopCollisionData
 
     void segment_test( int quantum );
 
-    void collide();
+    void collide( Actor& collider );
     CollisionData& collision_data();
     Vector<float,2>& pos();
     float inner_radius();

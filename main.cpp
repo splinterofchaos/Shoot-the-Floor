@@ -101,8 +101,8 @@ int main( int argc, char** argv )
             {
                 if( collision((**it1).collision_data(), (**it2).collision_data()) )
                 {
-                    (**it1).collide();
-                    (**it2).collide();
+                    (**it1).collide( **it2 );
+                    (**it2).collide( **it1 );
                 }
             }
         }

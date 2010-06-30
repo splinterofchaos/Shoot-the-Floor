@@ -86,7 +86,7 @@ void Playfield::segment_test( int quantum )
 
 void Playfield::move( int quantum ) { segment_test( quantum ); }
 
-void Playfield::collide() { }
+void Playfield::collide( Actor& collider ) { }
 
 CollisionData& Playfield::collision_data() { return *this; }
 

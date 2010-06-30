@@ -44,7 +44,7 @@ class Gunman : public Actor, PointCollisionData
     void move( int quantum );
     void draw();
 
-    void collide();
+    void collide( Actor& collider );
 
     // For PointCollisionData
     CollisionData& collision_data();
