@@ -48,22 +48,29 @@ class Segment
 class Playfield : public Actor, LoopCollisionData
 {
     typedef Actor parrent;
+    typedef std::vector< Segment > Segments;
 
-    std::vector< Segment > segments;
+    Segments segments;
     std::vector< Vector<float,2> > vertices;
 
     void init_vertices( float nVertices );
 
+    static const int BULLET_DAMAGE = 10;
+
   public:
     Playfield( const vector_type& pos, value_type radius, unsigned int nVertices );
 
+    void segment_test( int quantum );
+    void register_hit( vector_type collision_point );
+
+    // Actor functions.
     void draw();
     void move( int quantum );
 
-    void segment_test( int quantum );
-
     void collide( Actor& collider );
     CollisionData& collision_data();
+
+    // LoopCollisionData functions.
     Vector<float,2>& pos();
     float inner_radius();
     float outer_radius();

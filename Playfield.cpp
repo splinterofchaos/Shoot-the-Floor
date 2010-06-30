@@ -47,6 +47,26 @@ Playfield::Playfield( const vector_type& pos, value_type radius, unsigned int nV
     init_vertices( nVertices );
 }
 
+void Playfield::register_hit( vector_type collision_point )
+{
+    vector_type diff = collision_point - s;
+
+    // Normally, an index should be unsigned, but for calculating the index
+    // from an angle that can be negative, this being signed helps.
+    Segments::size_type index = 0;
+
+    // Starting from angle zero, and thinking of angles as a percentage from
+    // the starting angle to the opposite side, how far around
+    // the circle is the hit?
+    value_type angle_percentage = std::atan2( diff.y(), diff.x() ) / (3.14);
+
+    index = segments.size()/2 * std::abs(angle_percentage);
+    if( angle_percentage < 0 )
+        index = segments.size() - index - 1;
+
+    segments[ index ].health_rel( -BULLET_DAMAGE );
+}
+
 void Playfield::draw()
 {
     glTranslatef( s.x(), s.y(), 0 );
@@ -84,7 +104,7 @@ void Playfield::segment_test( int quantum )
             i = 0;
 }
 
-void Playfield::move( int quantum ) { segment_test( quantum ); }
+void Playfield::move( int quantum ) { }
 
 void Playfield::collide( Actor& collider ) { }
 
