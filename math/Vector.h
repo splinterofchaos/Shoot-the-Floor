@@ -100,6 +100,23 @@ public:
 
         variadic_construct( 0, args... );
     }
+
+#else
+    template< typename U >
+    Vector( U x, U y )
+    {
+        this->x( x );
+        this->y( y );
+    }
+
+    template< typename U >
+    Vector( U x, U y, U z )
+    {
+        this->x( x );
+        this->y( y );
+        this->z( z );
+    }
+
 #endif
 
     template< class U >
@@ -421,6 +438,18 @@ VEC unit( const VEC& v )
     } else {
         return v;
     }
+}
+
+template< typename T >
+Vector<T,2> clockwise_tangent( const Vector<T,2>& v )
+{
+    return Vector<T,2>( -v.y(), v.x() );
+}
+
+template< typename T >
+Vector<T,2> counter_clockwise_tangent( const Vector<T,2>& v )
+{
+    return Vector<T,2>( v.y(), -v.x() );
 }
 
 // vector( x... ) -> Vector( x... )

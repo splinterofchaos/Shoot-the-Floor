@@ -26,7 +26,7 @@ class Gunman : public Actor, PointCollisionData
 
     // How long (in miliseconds) to wait between shots.
     static const int SHOOT_DELAY = 10; 
-    int timeTillNextShot;
+    unsigned int timeTillNextShot;
 
     vector_type shoulder_point();
     vector_type arm_vector();

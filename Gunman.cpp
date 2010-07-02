@@ -58,8 +58,8 @@ Gunman::value_type Gunman::normal_angle()
 
 Gunman::vector_type Gunman::normal_to( const vector_type& V )
 {
-    value_type nAngle = normal_angle();
-    vector_type n = vector( std::cos(nAngle), std::sin(nAngle) );
+    value_type nangle = normal_angle();
+    vector_type n = vector( std::cos(nangle), std::sin(nangle) );
     n = -( V * unit(n) ) * unit(n);
     return n;
 }
@@ -76,6 +76,10 @@ Gunman::vector_type Gunman::shoulder_point()
 
 void Gunman::move( int quantum )
 {
+    Uint8* keyStates = SDL_GetKeyState( 0 );
+
+    std::fill( a.begin(), a.end(), value_type(0) );
+
     // Arm movement:
     if( controlledByPlayer ) {
         Uint8 mouseState;
@@ -112,9 +116,45 @@ void Gunman::move( int quantum )
     // For now, ignore the difference between force and acceleration; 
     // there is no mass.
     if( isGrounded ) 
+    {
+        static const value_type WALK_ACCEL = 0.001;
+
         forceSum += normal_to( GRAVITY );
 
-    a = forceSum;
+        if( keyStates[ SDLK_w ] )
+        {
+            value_type jAngle = normal_angle();
+            vector_type jump = vector( std::cos(jAngle), std::sin(jAngle) ) * 0.5f;
+            v += jump;
+            isGrounded = false;
+        }
+
+        if( keyStates[ SDLK_a ] )
+        {
+            vector_type diff = s - playfield.s;
+            vector_type walkAccel = unit( clockwise_tangent( diff ) ) * WALK_ACCEL;
+            a += walkAccel;
+        }
+
+        if( keyStates[ SDLK_d ] )
+        {
+            vector_type diff = s - playfield.s;
+            vector_type walkAccel = unit( counter_clockwise_tangent( diff ) ) * WALK_ACCEL;
+            a += walkAccel;
+        }
+    } 
+    else
+    {
+        static const value_type AIR_ACCEL = 0.0005;
+
+        if( keyStates[ SDLK_d ] )
+            a += vector_type( AIR_ACCEL, value_type(0) );
+        if( keyStates[ SDLK_a ] )
+            a -= vector_type( AIR_ACCEL, value_type(0) );
+    }
+
+
+    a += forceSum;
     parent::move( quantum );
 
     static int x = 100;
