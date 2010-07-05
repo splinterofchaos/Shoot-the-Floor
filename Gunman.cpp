@@ -1,6 +1,7 @@
 
-#include "math/Vector.h"
 #include "Gunman.h"
+
+#include "math/Vector.h"
 #include "Bullet.h"
 
 #include "Collision.h"
@@ -8,13 +9,53 @@
 #include <SDL/SDL.h> // For Mouse IO.
 #include <cmath>
 
+Uint8* HumanGunmanController::keyStates  = 0;
+Uint8  HumanGunmanController::mouseState = 0;
+Actor::vector_type HumanGunmanController::cursorPos;
+
+void HumanGunmanController::reload()
+{
+    keyStates = SDL_GetKeyState( 0 );
+
+    Vector<int,2> cPosInt;
+    mouseState = SDL_GetMouseState( &cPosInt.x(), &cPosInt.y() );
+    cursorPos = cPosInt;
+}
+
+unsigned int HumanGunmanController::move_left()
+{
+    return keyStates[ SDLK_a ];
+}
+
+unsigned int HumanGunmanController::move_right()
+{
+    return keyStates[ SDLK_d ];
+}
+
+bool HumanGunmanController::jump()
+{
+    return keyStates[ SDLK_w ] || keyStates[ SDLK_SPACE ];
+}
+
+bool HumanGunmanController::shoot()
+{
+    return mouseState & SDL_BUTTON(1);
+}
+
+Actor::vector_type HumanGunmanController::pointing_target()
+{
+    return cursorPos;
+}
+
 Gunman::vector_type Gunman::points[ Gunman::N_POINTS ];
 Gunman::vector_type Gunman::headPoints[ Gunman::N_HEAD_POINTS ];
 
-Gunman::Gunman( const Gunman::vector_type& pos, Playfield& p, bool controlledByPlayer )
-    : parent( pos ), pointingDirection( 0 ), playfield( p ),
-    controlledByPlayer( controlledByPlayer )
+Gunman::Gunman( const Gunman::vector_type& pos, Playfield& p, const ControllerPointer& controller )
+    : parent( pos ), pointingDirection( 0 ), playfield( p ), controller( controller )
 {
+    if( ! controller )
+        ; // TODO: Error handling.
+
     scale = 10;
 
     static bool firstInit = true;
@@ -40,7 +81,7 @@ Gunman::Gunman( const Gunman::vector_type& pos, Playfield& p, bool controlledByP
     // Note that this point should be repeated at the end.
     headPoints[0] = rv;
     for( unsigned int i=1; i < N_HEAD_POINTS; i++ )
-    {
+    { 
         Vector<float,2> tv = vector( -rv.y(), rv.x() );
 
         rv += tv * TANGENTAL_FACTOR;
@@ -48,6 +89,11 @@ Gunman::Gunman( const Gunman::vector_type& pos, Playfield& p, bool controlledByP
 
         headPoints[i] = rv;
     }
+}
+
+Gunman::~Gunman()
+{
+    delete controller;
 }
 
 Gunman::value_type Gunman::normal_angle()
@@ -74,36 +120,24 @@ Gunman::vector_type Gunman::shoulder_point()
     return vector( -std::cos(angle), -std::sin(angle) ) * magnitude;
 }
 
-void Gunman::move( int quantum )
+void Gunman::move( int dt )
 {
-    Uint8* keyStates = SDL_GetKeyState( 0 );
+    controller->reload();
 
-    std::fill( a.begin(), a.end(), value_type(0) );
+    std::fill( a.begin(), a.end(), 0 );
 
-    // Arm movement:
-    if( controlledByPlayer ) {
-        Uint8 mouseState;
+    vector_type diff = controller->pointing_target() - ( s + shoulder_point() );
+    pointingDirection = std::atan2( diff.y(), diff.x() );
 
-        // Make a vector pointing from shoulder to cursor.
-        int x, y;
-        mouseState = SDL_GetMouseState( &x, &y );
-        vector_type v = vector(x,y) - ( s + shoulder_point() );
+    Uint32 time = SDL_GetTicks();
+    if( controller->shoot() && timeTillNextShot <= time )
+    {
+        timeTillNextShot = time + SHOOT_DELAY;
 
-        pointingDirection = std::atan2( v.y(), v.x() );
-
-        // Shoot a bullet.
-        Uint32 time = SDL_GetTicks();
-        if( mouseState & SDL_BUTTON(1) && timeTillNextShot <= time ) 
-        {
-            timeTillNextShot = time + SHOOT_DELAY;
-
-            new Bullet ( 
-                s + shoulder_point() + arm_vector(),
-                v
-            );
-        }
-    } else {
-        pointingDirection += 0.001;
+        new Bullet ( 
+            s + shoulder_point() + arm_vector(),
+            v
+        );
     }
 
     // Body movement:
@@ -121,7 +155,7 @@ void Gunman::move( int quantum )
 
         forceSum += normal_to( GRAVITY );
 
-        if( keyStates[ SDLK_w ] )
+        if( controller->jump() )
         {
             value_type jAngle = normal_angle();
             vector_type jump = vector( std::cos(jAngle), std::sin(jAngle) ) * 0.5f;
@@ -129,17 +163,17 @@ void Gunman::move( int quantum )
             isGrounded = false;
         }
 
-        if( keyStates[ SDLK_a ] )
+        if( controller->move_left() )
         {
             vector_type diff = s - playfield.s;
-            vector_type walkAccel = unit( clockwise_tangent( diff ) ) * WALK_ACCEL;
+            vector_type walkAccel = unit( clockwise_tangent(diff) ) * WALK_ACCEL;
             a += walkAccel;
         }
 
-        if( keyStates[ SDLK_d ] )
+        if( controller->move_right() )
         {
             vector_type diff = s - playfield.s;
-            vector_type walkAccel = unit( counter_clockwise_tangent( diff ) ) * WALK_ACCEL;
+            vector_type walkAccel = unit( counter_clockwise_tangent(diff) ) * WALK_ACCEL;
             a += walkAccel;
         }
     } 
@@ -147,15 +181,14 @@ void Gunman::move( int quantum )
     {
         static const value_type AIR_ACCEL = 0.0005;
 
-        if( keyStates[ SDLK_d ] )
+        if( controller->move_right() )
             a += vector_type( AIR_ACCEL, value_type(0) );
-        if( keyStates[ SDLK_a ] )
+        if( controller->move_left() )
             a -= vector_type( AIR_ACCEL, value_type(0) );
     }
 
-
     a += forceSum;
-    parent::move( quantum );
+    Actor::move( dt, 1.0 );
 
     static int x = 100;
     if( isGrounded && x-- < 0 ) {

@@ -44,4 +44,7 @@ ${OUT} : .draw_shape.o .glpp.o .Playfield.o .Actor.o .Gunman.o .Bullet.o .Collis
 .Playfield.o : Playfield.h Playfield.cpp Actor.h Collision.h makefile
 	${compile} Playfield.cpp -o .Playfield.o
 
+clean:
+	rm *.o
+
 

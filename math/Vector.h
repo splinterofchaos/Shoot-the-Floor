@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <iostream> // FOR TESTING ONLY
-
 // Define macros for using C++0x features if a proper version of g++ is used.
 #if defined(__GNUC__) && __GXX_EXPERIMENTAL_CXX0X__
     // If GXX_EXPERIMENT is true, GNUC is 4 or greater.
@@ -406,7 +404,7 @@ typename BIN_OP_RET_TYPE::value_type angle_between( const VEC1& a, const VEC2& b
 #define VEC Vector<T,S>
 
 UNARY_OP_TEMPLATE
-T magnitudeSqr( const VEC& v )
+T magnitude_sqr( const VEC& v )
 {
     return v * v;
 }
@@ -414,7 +412,7 @@ T magnitudeSqr( const VEC& v )
 UNARY_OP_TEMPLATE
 T magnitude( const VEC& v )
 {
-    return std::sqrt( magnitudeSqr(v) );
+    return std::sqrt( magnitude_sqr(v) );
 }
 
 UNARY_OP_TEMPLATE
@@ -428,7 +426,7 @@ VEC magnitude( const VEC& v, T newMag )
 UNARY_OP_TEMPLATE
 VEC unit( const VEC& v )
 {
-    T x = magnitudeSqr( v );
+    T x = magnitude_sqr( v );
 
     if( x ) {
         // x = ||v||

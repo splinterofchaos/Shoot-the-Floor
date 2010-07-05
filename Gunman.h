@@ -4,6 +4,36 @@
 
 #pragma once
 
+struct GunmanController
+{ 
+    virtual void reload() = 0;
+
+    virtual unsigned int move_left() = 0;
+    virtual unsigned int move_right() = 0;
+
+    virtual bool jump() = 0;
+    virtual bool shoot() = 0;
+
+    virtual Actor::vector_type pointing_target() = 0;
+};
+
+struct HumanGunmanController : GunmanController
+{
+    static Uint8* keyStates;
+    static Uint8 mouseState;
+    static Actor::vector_type cursorPos;
+
+    void reload();
+
+    unsigned int move_left();
+    unsigned int move_right();
+
+    bool jump();
+    bool shoot();
+    
+    virtual Actor::vector_type pointing_target();
+};
+
 class Gunman : public Actor, PointCollisionData
 {
     typedef Actor parent;
@@ -36,10 +66,14 @@ class Gunman : public Actor, PointCollisionData
   public:
     Playfield& playfield;
 
-    bool controlledByPlayer; // True if this is a pawn of the player.
+    typedef GunmanController Controller;
+    typedef Controller* ControllerPointer;
+    ControllerPointer controller;
+
     bool isGrounded;
 
-    Gunman( const vector_type& pos, Playfield& p, bool controlledByPlayer=false );
+    Gunman( const vector_type& pos, Playfield& p, const ControllerPointer& controller);
+    ~Gunman();
 
     void move( int quantum );
     void draw();

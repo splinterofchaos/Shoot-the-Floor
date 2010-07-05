@@ -36,24 +36,31 @@ class Actor
         actors.push_back( ActorPointer(this) );
     }
 
-protected:
+  public:
+    typedef float value_type;
+    typedef Vector<float,2> vector_type;
+
+  protected:
     Actor()
     {
     }
 
-public:
+    void simple_integration( vector_type& s, vector_type& v, vector_type& a, int dt )
+    {
+        v += a * dt;
+        s += v*dt + a*dt*dt*0.5;
+    }
+
+  public:
     typedef std::tr1::shared_ptr< Actor > ActorPointer;
     typedef std::vector< ActorPointer > ActorList;
     static ActorList actors;
-
-    typedef float value_type;
-    typedef Vector<float,2> vector_type;
 
     // Single-letter vars used in order to be close to the mathematical 
     // equations.
     vector_type s; // State, or position.
     vector_type v; // Velocity.
-    vector_type a; // Acceleration.
+    vector_type a; // Acceleration. 
 
     vector_type previousS;
 
@@ -77,7 +84,16 @@ public:
     // up a simple, generic state integration.
     virtual void move( int dt )
     {
+        move( dt, 0 );
+    }
+
+    void move( int dt, value_type maxSpeed=0 )
+    {
         v += a * dt;
+
+        if( maxSpeed && magnitude_sqr(v) > maxSpeed*maxSpeed )
+            v = magnitude( v, maxSpeed );
+
         s += v*dt + a*dt*dt*0.5;
     }
 

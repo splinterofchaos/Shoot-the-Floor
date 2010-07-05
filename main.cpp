@@ -46,6 +46,8 @@ void update_screen()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
+#include <fstream>
+
 int main( int argc, char** argv )
 {
     // Portably suppresses unused variable compiler warnings.
@@ -66,8 +68,11 @@ int main( int argc, char** argv )
 #endif
 
     Playfield& playfield = *(new Playfield( vector<float>(350, 300), 200, 40 ));
-    new Gunman( vector(500, 300), playfield, true );
-    new Gunman( vector(500, 200), playfield, true );
+
+    new Gunman (
+        vector(500, 300), playfield, 
+        new HumanGunmanController
+    );
 
     int frameStart=SDL_GetTicks(), frameEnd=frameStart, frameTime=0;
     while( quit == false )
@@ -111,7 +116,7 @@ int main( int argc, char** argv )
             Actor::actors.begin(), Actor::actors.end(), 
             std::mem_fn( &Actor::draw ) 
         );
-
+ 
         Actor::actors.erase ( 
             remove_if (
                 Actor::actors.begin(), Actor::actors.end(), destroy_me
